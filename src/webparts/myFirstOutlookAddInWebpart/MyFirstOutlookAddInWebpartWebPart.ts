@@ -1,40 +1,54 @@
-import { Version } from '@microsoft/sp-core-library';
+import { Version } from "@microsoft/sp-core-library";
 import {
   IPropertyPaneConfiguration,
-  PropertyPaneTextField
-} from '@microsoft/sp-property-pane';
-import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import { escape } from '@microsoft/sp-lodash-subset';
+  PropertyPaneTextField,
+} from "@microsoft/sp-property-pane";
+import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
+import { escape } from "@microsoft/sp-lodash-subset";
 
-import styles from './MyFirstOutlookAddInWebpartWebPart.module.scss';
-import * as strings from 'MyFirstOutlookAddInWebpartWebPartStrings';
+import styles from "./MyFirstOutlookAddInWebpartWebPart.module.scss";
+import * as strings from "MyFirstOutlookAddInWebpartWebPartStrings";
 
 export interface IMyFirstOutlookAddInWebpartWebPartProps {
   description: string;
 }
 
 export default class MyFirstOutlookAddInWebpartWebPart extends BaseClientSideWebPart<IMyFirstOutlookAddInWebpartWebPartProps> {
-
   public render(): void {
-    this.domElement.innerHTML = `
-      <div class="${ styles.myFirstOutlookAddInWebpart }">
-        <div class="${ styles.container }">
-          <div class="${ styles.row }">
-            <div class="${ styles.column }">
-              <span class="${ styles.title }">Welcome to SharePoint!</span>
-              <p class="${ styles.subTitle }">Customize SharePoint experiences using Web Parts.</p>
-              <p class="${ styles.description }">${escape(this.properties.description)}</p>
-              <a href="https://aka.ms/spfx" class="${ styles.button }">
-                <span class="${ styles.label }">Learn more</span>
-              </a>
-            </div>
-          </div>
-        </div>
+    let title: string = "";
+    let subTitle: string = "";
+    let contextInfo: string = "";
+
+    if (this.context.sdks.office) {
+      // Office context
+      title = "Welcome to Office!";
+      subTitle = "Extending Office with SPFx.";
+      contextInfo =
+        "Email: " +
+        this.context.sdks.office.context.mailbox.userProfile.emailAddress;
+    } else {
+      // SharePoint context
+      title = "Welcome to SharePoint!";
+      subTitle = "Customize SharePoint experiences using Web Parts.";
+      contextInfo = "SharePoint site: " + this.context.pageContext.web.title;
+    }
+
+    this.domElement.innerHTML = `  
+      <div class="${styles.spFxOutlookAddIn}">  
+        <div class="${styles.container}">  
+          <div class="${styles.row}">  
+            <div class="${styles.column}">  
+              <span class="${styles.title}">${title}</span>  
+              <p class="${styles.subTitle}">${subTitle}</p>  
+              <p class="${styles.description}">${contextInfo}</p>  
+            </div>  
+          </div>  
+        </div>  
       </div>`;
   }
 
   protected get dataVersion(): Version {
-    return Version.parse('1.0');
+    return Version.parse("1.0");
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -42,20 +56,20 @@ export default class MyFirstOutlookAddInWebpartWebPart extends BaseClientSideWeb
       pages: [
         {
           header: {
-            description: strings.PropertyPaneDescription
+            description: strings.PropertyPaneDescription,
           },
           groups: [
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
-                })
-              ]
-            }
-          ]
-        }
-      ]
+                PropertyPaneTextField("description", {
+                  label: strings.DescriptionFieldLabel,
+                }),
+              ],
+            },
+          ],
+        },
+      ],
     };
   }
 }
